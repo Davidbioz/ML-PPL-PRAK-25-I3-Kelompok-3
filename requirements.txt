@@ -1,2 +1,21 @@
 ipykernel
 python-dotenv
+
+# Data & utilities
+pandas
+numpy
+scikit-learn
+joblib
+
+# Visualization
+matplotlib
+seaborn
+
+# FastText (Windows-friendly wheel)
+fasttext-wheel
+
+# Transformers stack
+torch
+transformers
+datasets
+evaluate
