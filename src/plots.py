@@ -32,7 +32,12 @@ def save_classification_report(
         f.write(report)
     return out_path
 
-def plot_metrics_comparison(models_metrics: dict, fname: str = "metrics_compare.png", title: str = "Model Comparison (Test)") -> str:
+
+def plot_metrics_comparison(
+    models_metrics: dict,
+    fname: str = "metrics_compare.png",
+    title: str = "Model Comparison (Test)",
+) -> str:
     # Expected shape: {"FastText": {"accuracy": float, "precision": float, "recall": float, "f1": float}, "IndoBERT": {...}}
     metrics = ["accuracy", "precision", "recall", "f1"]
     model_names = list(models_metrics.keys())
@@ -42,7 +47,7 @@ def plot_metrics_comparison(models_metrics: dict, fname: str = "metrics_compare.
     fig, ax = plt.subplots(figsize=(7, 4))
     for i, model in enumerate(model_names):
         vals = [models_metrics[model].get(m, np.nan) for m in metrics]
-        ax.bar(x + (i - (len(model_names)-1)/2) * width, vals, width, label=model)
+        ax.bar(x + (i - (len(model_names) - 1) / 2) * width, vals, width, label=model)
 
     ax.set_xticks(x)
     ax.set_xticklabels([m.title() for m in metrics])

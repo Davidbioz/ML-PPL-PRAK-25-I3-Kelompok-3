@@ -1,8 +1,8 @@
               precision    recall  f1-score   support
 
-    non-hoax     0.9964    0.9980    0.9972      2529
-        hoax     0.9979    0.9963    0.9971      2406
+    non-hoax     0.9976    0.9988    0.9982      2529
+        hoax     0.9988    0.9975    0.9981      2406
 
-    accuracy                         0.9972      4935
-   macro avg     0.9972    0.9971    0.9972      4935
-weighted avg     0.9972    0.9972    0.9972      4935
+    accuracy                         0.9982      4935
+   macro avg     0.9982    0.9982    0.9982      4935
+weighted avg     0.9982    0.9982    0.9982      4935

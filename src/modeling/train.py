@@ -152,6 +152,21 @@ def train_indobert(
     model = AutoModelForSequenceClassification.from_pretrained(model_name, num_labels=2)
     collator = DataCollatorWithPadding(tokenizer)
 
+    # Mixed precision selection (CUDA only)
+    use_fp16 = False
+    use_bf16 = False
+    if torch.cuda.is_available():
+        try:
+            if (
+                hasattr(torch.cuda, "is_bf16_supported")
+                and torch.cuda.is_bf16_supported()
+            ):
+                use_bf16 = True
+            else:
+                use_fp16 = True
+        except Exception:
+            use_fp16 = True
+
     training_args = TrainingArguments(
         output_dir=SETTINGS.indobert_model_dir,
         overwrite_output_dir=True,
@@ -162,6 +177,8 @@ def train_indobert(
         logging_steps=50,
         seed=SETTINGS.random_seed,
         report_to=[],
+        fp16=use_fp16,
+        bf16=use_bf16,
     )
 
     def hf_compute_metrics(eval_pred):
@@ -184,21 +201,17 @@ def train_indobert(
     )
 
     trainer.train()
-    # Save model
     trainer.save_model(SETTINGS.indobert_model_dir)
 
-    # Evaluate after training
+    # Evaluate and save artifacts
     val_metrics = trainer.evaluate(val_ds)
     test_metrics = trainer.evaluate(test_ds)
-
-    # Predictions for confusion matrix/report
     preds = np.argmax(trainer.predict(test_ds).predictions, axis=-1)
     y_true = test_df["label"].values
     plot_confusion_matrix(
         y_true, preds, title="IndoBERT Test CM", fname="cm_indobert.png"
     )
     save_classification_report(y_true, preds, fname="report_indobert.txt")
-
     return {"val": val_metrics, "test": test_metrics}
 
 
@@ -226,6 +239,7 @@ def run_indobert_and_compare_barplot(epochs: int = 1) -> str:
     # If model not trained yet, do a short training
     try:
         from .predict import predict_fasttext  # noqa: F401
+
         fasttext_available = os.path.exists(SETTINGS.fasttext_model_path)
     except Exception:
         fasttext_available = False
@@ -234,6 +248,7 @@ def run_indobert_and_compare_barplot(epochs: int = 1) -> str:
         ft_test = ft_res["test"]
     else:
         import fasttext
+
         model = fasttext.load_model(SETTINGS.fasttext_model_path)
         texts = normalize_batch(test_df["text"].tolist())
         preds = [int(model.predict(t)[0][0].replace("__label__", "")) for t in texts]
